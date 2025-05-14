@@ -1,10 +1,12 @@
 const express = require('express');
 const router = express.Router();
 const bcrypt = require('bcrypt');
+const crypto = require('crypto');
 const User = require('../models/User');
 const { sendVerificationEmail } = require('../utils/mailer');
 const { generateOTP } = require('../utils/otpGenerator');
 const { sendOtpEmail } = require('../utils/otpmailer');
+const { sendResetPasswordEmail } = require('../utils/resetPasswordMailer');
 
 // Sign up route
 router.post('/signup', async (req, res) => {
@@ -87,6 +89,49 @@ router.post('/verify-otp', async (req, res) => {
         return res.status(200).json({ message: 'OTP verified' });
     } catch (err) {
         return res.status(500).json({ message: 'Server error' });
+    }
+});
+
+// Forgot password route
+router.post('/forgot-password', async (req, res) => {
+    const { email } = req.body;
+    try {
+        const user = await User.findOne({ email });
+        if (!user){
+            return res.status(400).json({ message: 'No account found with this email.' });
+        }
+        const resetToken = crypto.randomBytes(32).toString('hex');
+        user.resetPasswordToken = resetToken;
+        user.resetPasswordExpires = Date.now() + 60 * 60 * 1000;
+        await user.save();
+        
+        await sendResetPasswordEmail(email, resetToken);
+        res.status(200).json({ message: 'Password reset email sent.' });
+    } catch (err) {
+        res.status(500).json({ message: 'Server error' });
+    }
+});
+
+//POST /reset-password/:token
+router.post('/reset-password/:token', async (req, res) => {
+    const { token } = req.params;
+    const { password } = req.body;
+    try {
+        const user = await User.findOne({
+            resetPasswordToken: token,
+            resetPasswordExpires: { $gt: Date.now() }
+        });
+        if(!user){
+            return res.status(400).json({ message: 'Invalid or expired token.' });
+        }
+        const hashedPassword = await bcrypt.hash(password, 10);
+        user.password = hashedPassword;
+        user.resetPasswordToken = null;
+        user.resetPasswordExpires = null;
+        await user.save();
+        res.status(200).json({ message: 'Password reset successfully.' });
+    } catch (err) {
+       res.status(500).json({message: 'Server error' }); 
     }
 })
 

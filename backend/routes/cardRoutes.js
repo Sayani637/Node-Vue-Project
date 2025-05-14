@@ -18,12 +18,13 @@ const upload = multer({ storage: storage });
 // POST /api/cards
 router.post('/', upload.single('image'), async (req, res) => {
     try {
-        const { title, description } = req.body;
+        const { title, description, price } = req.body;
         const imageUrl = req.file ? `/uploads/${req.file.filename}` : null;
 
         const newCard = new Card({
             title,
             description,
+            price: parseFloat(price),
             imageUrl,
         });
 
@@ -49,12 +50,13 @@ router.get('/', async (req, res) => {
 // PUT /api/cards/:id
 router.put('/:id', upload.single('image'), async(req, res) => {
     try {
-        const { title, description } = req.body;
+        const { title, description, price } = req.body;
         const { id } = req.params;
 
         const updateData = {
             title,
-            description
+            description,
+            price: parseFloat(price),
         };
         if(req.file){
             updateData.imageUrl = `/uploads/${req.file.filename}`;

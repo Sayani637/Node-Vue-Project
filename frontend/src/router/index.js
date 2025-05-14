@@ -5,6 +5,7 @@ import CreateCard from '../components/CreateCard.vue';
 import ContactPage from '../components/ContactPage.vue';
 import SignUpPage from '../components/auth/SignUpPage.vue';
 import LoginPage from '../components/auth/LoginPage.vue';
+import ResetPasswordPage from '../components/auth/ResetPasswordPage.vue';
 
 const routes = [
     { 
@@ -16,6 +17,11 @@ const routes = [
         path: '/login', 
         name: 'Login', 
         component: LoginPage 
+    },
+    {
+        path: '/reset-password/:token',
+        name: 'ResetPassword',
+        component: ResetPasswordPage
     },
     { 
         path: '/gallery', 

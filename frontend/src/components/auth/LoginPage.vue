@@ -1,15 +1,24 @@
 <template>
     <div class="auth-wrapper">
         <div class="auth-panel">
-            <h2>{{ showOtpInput ? 'Verify OTP' : 'Login' }}</h2>
+            <h2>
+                {{ showForgotForm ? 'Forgot Password' : showOtpInput ? 'Verify OTP' : 'Login' }}
+            </h2>
             <p class="subtitle">
-                {{ showOtpInput ? 'Enter the 6-digit code sent to your email' : 'Enter your email and password' }}
+                {{ showForgotForm
+                    ? 'Enter your email to receive a reset link.'
+                    : showOtpInput
+                        ? 'Enter the 6-digit code sent to your email.'
+                        : 'Enter your email and password to log in.'
+                }}
             </p>
-            <form v-if="!showOtpInput" @submit.prevent="handleLogin">
+
+            <!-- Login Form -->
+            <form v-if="!showOtpInput && !showForgotForm" @submit.prevent="handleLogin">
                 <input type="email" v-model="loginEmail" placeholder="Email" required />
                 <div class="password-row">
                     <input type="password" v-model="loginPassword" placeholder="Password" required />
-                    <a href="#" class="forgot">Forgot password?</a>
+                    <a href="#" class="forgot" @click.prevent="showForgotForm = true">Forgot password?</a>
                 </div>
                 <button type="submit" class="auth-btn">LOGIN</button>
                 <p class="toggle-link">
@@ -23,17 +32,28 @@
                 </div>
             </form>
 
-            <!-- Verify OTP -->
-            <form v-else @submit.prevent="verifyOtp">
+            <!-- OTP Verification -->
+            <form v-else-if="showOtpInput" @submit.prevent="verifyOtp">
                 <input type="text" v-model="otp" placeholder="Enter OTP" required />
                 <button type="submit" class="auth-btn">Verify OTP</button>
+                <p class="toggle-link">
+                    <span @click="showOtpInput = false">Back to Login</span>
+                </p>
             </form>
+
+            <!-- Forgot Password -->
+            <div v-else-if="showForgotForm">
+                <input type="email" v-model="forgotEmail" placeholder="Enter your email" required />
+                <button @click="sendForgotPassword" class="auth-btn">Send Reset Link</button>
+                <p class="toggle-link">
+                    <span @click="showForgotForm = false">Back to Login</span>
+                </p>
+            </div>
         </div>
     </div>
 </template>
 
 <script>
-import { useRouter } from 'vue-router';
 import Toastify from 'toastify-js';
 
 export default {
@@ -43,7 +63,9 @@ export default {
             loginPassword: '',
             showOtpInput: false,
             otp: '',
-            emailForOtp: ''
+            emailForOtp: '',
+            forgotEmail: '',
+            showForgotForm: false,
         };
     },
     methods: {
@@ -64,12 +86,12 @@ export default {
 
                 if (response.ok && result.step === 'otp') {
                     Toastify({
-                        text: "OTP sent to email.",
+                        text: 'OTP sent to email.',
                         duration: 3000,
-                        gravity: "bottom",
-                        position: "right",
+                        gravity: 'bottom',
+                        position: 'right',
                         style: {
-                            background: "linear-gradient(to right, #00b09b, #96c93d)",
+                            background: 'linear-gradient(to right, #00b09b, #96c93d)',
                         },
                         close: true,
                     }).showToast();
@@ -78,24 +100,24 @@ export default {
                     this.showOtpInput = true;
                 } else {
                     Toastify({
-                        text: result.message || "Login failed.",
+                        text: result.message || 'Login failed.',
                         duration: 3000,
-                        gravity: "bottom",
-                        position: "right",
+                        gravity: 'bottom',
+                        position: 'right',
                         style: {
-                            background: "linear-gradient(to right, #ff5f6d, #ffc371)",
+                            background: 'linear-gradient(to right, #ff5f6d, #ffc371)',
                         },
                         close: true,
                     }).showToast();
                 }
             } catch (error) {
                 Toastify({
-                    text: "Server error. Please try again.",
+                    text: 'Server error. Please try again.',
                     duration: 3000,
-                    gravity: "bottom",
-                    position: "right",
+                    gravity: 'bottom',
+                    position: 'right',
                     style: {
-                        background: "linear-gradient(to right, #ff5f6d, #ffc371)",
+                        background: 'linear-gradient(to right, #ff5f6d, #ffc371)',
                     },
                     close: true,
                 }).showToast();
@@ -107,18 +129,18 @@ export default {
                 const response = await fetch('http://localhost:3000/api/auth/verify-otp', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ email: this.emailForOtp, otp: this.otp })
+                    body: JSON.stringify({ email: this.emailForOtp, otp: this.otp }),
                 });
                 const result = await response.json();
 
                 if (response.ok) {
                     Toastify({
-                        text: "Login successful!",
+                        text: 'Login successful!',
                         duration: 3000,
-                        gravity: "bottom",
-                        position: "right",
+                        gravity: 'bottom',
+                        position: 'right',
                         style: {
-                            background: "linear-gradient(to right, #00b09b, #96c93d)",
+                            background: 'linear-gradient(to right, #00b09b, #96c93d)',
                         },
                         close: true,
                     }).showToast();
@@ -127,33 +149,63 @@ export default {
                     this.$router.push('/gallery');
                 } else {
                     Toastify({
-                        text: result.message || "Login failed.",
+                        text: result.message || 'OTP invalid.',
                         duration: 3000,
-                        gravity: "bottom",
-                        position: "right",
+                        gravity: 'bottom',
+                        position: 'right',
                         style: {
-                            background: "linear-gradient(to right, #ff5f6d, #ffc371)",
+                            background: 'linear-gradient(to right, #ff5f6d, #ffc371)',
                         },
                         close: true,
                     }).showToast();
                 }
             } catch (err) {
                 Toastify({
-                    text: "OTP verification failed",
+                    text: 'OTP verification failed',
                     duration: 3000,
-                    gravity: "bottom",
-                    position: "right",
+                    gravity: 'bottom',
+                    position: 'right',
                     style: {
-                        background: "linear-gradient(to right, #ff5f6d, #ffc371)",
+                        background: 'linear-gradient(to right, #ff5f6d, #ffc371)',
                     },
                     close: true,
                 }).showToast();
             }
-        }
-    }
+        },
+
+        async sendForgotPassword() {
+            try {
+                const response = await fetch('http://localhost:3000/api/auth/forgot-password', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email: this.forgotEmail }),
+                });
+
+                const result = await response.json();
+                Toastify({
+                    text: result.message,
+                    duration: 3000,
+                    gravity: 'bottom',
+                    position: 'right',
+                    style: { background: '#00b09b' },
+                    close: true,
+                }).showToast();
+
+                this.showForgotForm = false;
+            } catch (err) {
+                Toastify({
+                    text: 'Error sending reset email',
+                    duration: 3000,
+                    gravity: 'bottom',
+                    position: 'right',
+                    style: { background: '#ff5f6d' },
+                    close: true,
+                }).showToast();
+            }
+        },
+    },
 };
 </script>
-
 
 <style scoped>
 .auth-wrapper {

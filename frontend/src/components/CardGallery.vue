@@ -8,6 +8,7 @@
         <img :src="getFullImageUrl(card.imageUrl)" alt="Card Image" />
         <h2>{{ card.title }}</h2>
         <p>{{ card.description }}</p>
+        <p class="price">₹{{ card.price }}</p>
       </div>
     </div>
   </div>
@@ -25,6 +26,11 @@
         <div class="form-group">
           <label for="description">Description</label>
           <textarea id="description" v-model="description" rows="3" placeholder="Enter description..."></textarea>
+        </div>
+
+        <div class="form-group">
+          <label for="price">Price</label>
+          <input id="price" v-model="price" type="number" min="0" step="0.01" placeholder="Enter price" />
         </div>
 
         <div class="form-group">
@@ -73,6 +79,7 @@ export default {
       this.selectedCardId = card._id;
       this.title = card.title;
       this.description = card.description;
+      this.price = card.price;
       this.imagePreview = this.getFullImageUrl(card.imageUrl);
       this.showModal = true;
     },
@@ -80,6 +87,7 @@ export default {
       this.showModal = false;
       this.title = '';
       this.description = '';
+      this.price = '';
       this.imagePreview = null;
       this.selectedCardId = null;
     },
@@ -93,6 +101,7 @@ export default {
       const formData = new FormData();
       formData.append('title', this.title);
       formData.append('description', this.description);
+      formData.append('price', this.price);
       const fileInput = document.getElementById('image');
       if (fileInput.files[0]) {
         formData.append('image', fileInput.files[0]);
@@ -239,8 +248,9 @@ h1 {
 
 .card img {
   width: 100%;
-  height: 200px;
-  object-fit: cover;
+  height: auto;
+  object-fit: contain;
+  max-height: 300px;
 }
 
 .card h2 {
@@ -251,6 +261,13 @@ h1 {
 .card p {
   margin: 10px;
   color: #555;
+}
+
+.price {
+  margin: 10px;
+  font-weight: bold;
+  color: #2d3748;
+  font-size: 1.1rem;
 }
 
 .modal-overlay {
@@ -296,6 +313,7 @@ label {
 }
 
 input[type="text"],
+input[type="number"],
 textarea,
 input[type="file"] {
   padding: 10px;
@@ -307,6 +325,7 @@ input[type="file"] {
 }
 
 input[type="text"]:focus,
+input[type="number"]:focus,
 textarea:focus {
   border-color: #007bff;
   box-shadow: 0 0 5px rgba(0, 123, 255, 0.3);

@@ -15,6 +15,11 @@
             </div>
 
             <div class="form-group">
+                <label for="price">Price</label>
+                <input id="price" v-model="price" type="number" min="0" step="0.01" placeholder="Enter price" />
+            </div>
+
+            <div class="form-group">
                 <label for="image">Upload Image</label>
                 <input id="image" type="file" @change="previewImage" />
                 <img v-if="imagePreview" :src="imagePreview" alt="Preview" class="image-preview" />
@@ -33,6 +38,7 @@ export default {
         return {
             title: '',
             description: '',
+            price: '',
             imagePreview: null,
         };
     },
@@ -47,6 +53,8 @@ export default {
             const formData = new FormData();
             formData.append('title', this.title);
             formData.append('description', this.description);
+            formData.append('price', this.price);
+
             const fileInput = document.getElementById('image');
             if (fileInput.files[0]) {
                 formData.append('image', fileInput.files[0]);
@@ -61,7 +69,7 @@ export default {
                 Toastify({
                     text: "Card created successfully!",
                     duration: 3000,
-                    gravity: "bottom", 
+                    gravity: "bottom",
                     position: "right",
                     style: {
                         background: "linear-gradient(to right, #00b09b, #96c93d)",
@@ -71,6 +79,7 @@ export default {
                 // Reset form fields
                 this.title = '';
                 this.description = '';
+                this.price = '';
                 this.imagePreview = null;
                 fileInput.value = '';
             } catch (error) {
@@ -122,6 +131,7 @@ label {
 }
 
 input[type="text"],
+input[type="number"],
 textarea,
 input[type="file"] {
     padding: 10px;
@@ -133,6 +143,7 @@ input[type="file"] {
 }
 
 input[type="text"]:focus,
+input[type="number"]:focus,
 textarea:focus {
     border-color: #007bff;
     box-shadow: 0 0 5px rgba(0, 123, 255, 0.3);
