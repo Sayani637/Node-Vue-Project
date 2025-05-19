@@ -3,12 +3,14 @@
     <h1>Card Gallery</h1>
     <div class="cards">
       <div v-for="card in cards" :key="card._id" class="card">
-        <span class="edit-icon" @click="editCard(card)" title="Edit Card">✏️</span>
-        <span class="delete-icon" @click="deleteCard(card._id)" title="Delete Card">🗑️</span>
-        <img :src="getFullImageUrl(card.imageUrl)" alt="Card Image" />
-        <h2>{{ card.title }}</h2>
-        <p>{{ card.description }}</p>
-        <p class="price">₹{{ card.price }}</p>
+        <router-link :to="`/card/${card._id}`" class="card-link">
+          <img :src="getFullImageUrl(card.imageUrl)" alt="Card Image" />
+          <h2>{{ card.title }}</h2>
+          <p>{{ card.description }}</p>
+          <p class="price">₹{{ card.price }}</p>
+        </router-link>
+        <span v-if="isAdmin" class="edit-icon" @click="editCard(card)" title="Edit Card">✏️</span>
+        <span v-if="isAdmin" class="delete-icon" @click="deleteCard(card._id)" title="Delete Card">🗑️</span>
       </div>
     </div>
   </div>
@@ -58,7 +60,13 @@ export default {
       description: '',
       imagePreview: null,
       selectedCardId: null,
+      userRole: localStorage.getItem('role') || 'user'
     };
+  },
+  computed: {
+    isAdmin() {
+      return this.userRole === 'admin';
+    }
   },
   mounted() {
     this.fetchCards();
@@ -182,6 +190,14 @@ export default {
   padding: 20px;
   font-family: Arial, sans-serif;
 }
+
+.cards {
+  display: flex;
+  overflow-x: auto;
+  gap: 20px;
+  padding-bottom: 10px;
+}
+
 
 h1 {
   text-align: center;
@@ -345,5 +361,10 @@ textarea:focus {
 
 .submit-btn:hover {
   background-color: #276749;
+}
+
+.card-link {
+  text-decoration: none;
+  color: inherit;
 }
 </style>

@@ -6,7 +6,8 @@
         <h2>Grow Your Business With <br /><span class="highlight">Our Expertise</span></h2>
       </div>
       <p class="description">
-        If you are looking for high-quality web designing and development, software development and mobile application development, contact us.
+        If you are looking for high-quality web designing and development, software development and mobile application
+        development, contact us.
         We have a team of experts who specialize in IT solutions.
       </p>
     </section>
@@ -48,32 +49,75 @@
 
     <section class="map-section">
       <div class="container">
-        <iframe src="https://www.google.com/maps/embed?pb=!1m14!1m12!1m3!1d29472.417365613735!2d88.31303680000003!3d22.57715200000001!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!5e0!3m2!1sen!2sin!4v1746178756687!5m2!1sen!2sin" width="600" height="450" style="border:0;" allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
+        <iframe
+          src="https://www.google.com/maps/embed?pb=!1m14!1m12!1m3!1d29472.417365613735!2d88.31303680000003!3d22.57715200000001!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!5e0!3m2!1sen!2sin!4v1746178756687!5m2!1sen!2sin"
+          width="600" height="450" style="border:0;" allowfullscreen="" loading="lazy"
+          referrerpolicy="no-referrer-when-downgrade"></iframe>
       </div>
     </section>
   </div>
 </template>
 
 <script>
-import { ref } from 'vue';
+import axios from 'axios';
+import Toastify from 'toastify-js';
 
 export default {
   name: 'ContactPage',
-  setup() {
-    const name = ref('');
-    const email = ref('');
-    const mobile = ref('');
-    const subject = ref('');
-    const message = ref('');
-
-    const submitForm = () => {
-      alert(`Message sent by ${name.value}`);
-      // Submit to backend here
-    };
-
+  data() {
     return {
-      name, email, mobile, subject, message, submitForm,
+      name: '',
+      email: '',
+      mobile: '',
+      subject: '',
+      message: '',
     };
+  },
+  methods: {
+    async submitForm() {
+      try {
+        const payload = {
+          name: this.name,
+          email: this.email,
+          mobile: this.mobile,
+          subject: this.subject,
+          message: this.message,
+        };
+
+        const response = await axios.post('http://localhost:3000/api/contact/send-email', payload);
+
+        if (response.status === 200) {
+          Toastify({
+            text: "Message sent successfully!",
+            duration: 3000,
+            gravity: "bottom",
+            position: "right",
+            style: {
+              background: "linear-gradient(to right, #00b09b, #96c93d)",
+            },
+            close: true,
+          }).showToast();
+          // Clear form
+          this.name = '';
+          this.email = '';
+          this.mobile = '';
+          this.subject = '';
+          this.message = '';
+        }
+      } catch (err) {
+        Toastify({
+          text: "Error sending message. Please try again later.",
+          duration: 3000,
+          gravity: "bottom",
+          position: "right",
+          style: {
+            background: "linear-gradient(to right, #ff5f6d, #ffc371)",
+          },
+          close: true,
+        }).showToast();
+        console.error(err);
+      }
+    }
   }
 };
 </script>
@@ -122,7 +166,8 @@ h2 {
   justify-content: center;
 }
 
-.contact-info, .contact-form {
+.contact-info,
+.contact-form {
   flex: 1;
   min-width: 300px;
   max-width: 500px;

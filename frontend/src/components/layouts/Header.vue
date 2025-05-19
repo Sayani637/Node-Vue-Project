@@ -2,8 +2,8 @@
     <header class="navbar">
         <nav class="nav-container">
             <ul class="nav-links">
-                <li><a href="/">Home</a></li>
-                <li><a href="/create-card">Create Card</a></li>
+                <li><a href="/gallery">Home</a></li>
+                <li v-if="isAdmin"><a href="/create-card">Create Card</a></li>
                 <li><a href="/contact">Contact</a></li>
             </ul>
 
@@ -25,8 +25,14 @@ export default {
     data() {
         return {
             showDropdown: false,
-            profileImage: profileImage
+            profileImage: profileImage,
+            userRole: localStorage.getItem('role') || 'user'
         };
+    },
+    computed: {
+        isAdmin() {
+        return this.userRole === 'admin';
+        }
     },
     methods: {
         toggleDropdown() {
@@ -34,6 +40,7 @@ export default {
         },
         logout() {
             localStorage.removeItem('token');
+            localStorage.removeItem('role');
             this.$router.push('/login');
         }
     }

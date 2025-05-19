@@ -14,6 +14,10 @@ const userSchema = new mongoose.Schema({
         type: String,
         required: true
     },
+    token: {
+        type: String,
+        default: null
+    },
     is_verify: {
         type: Boolean,
         default: false
@@ -36,6 +40,11 @@ const userSchema = new mongoose.Schema({
     resetPasswordExpires: {
         type: Date,
         default: null
+    },
+    role: {
+        type: String,
+        enum: ['user', 'admin'],
+        default: 'user'
     }
 });
 

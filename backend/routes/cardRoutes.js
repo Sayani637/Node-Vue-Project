@@ -89,4 +89,18 @@ router.delete('/:id', async (req, res) => {
     }
 });
 
+// GET /api/cards/:id
+router.get('/:id', async (req, res) => {
+    try {
+        const card = await Card.findById(req.params.id);
+        if(!card){
+            return res.status(404).json({ error: 'Card not found' });
+        }
+        res.json(card);
+    } catch (err) {
+       console.error('Error fetching card by ID:', err);
+       res.status(500).json({ error: 'Server error' }); 
+    }
+});
+
 module.exports = router;

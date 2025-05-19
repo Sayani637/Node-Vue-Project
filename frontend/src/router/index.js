@@ -3,6 +3,7 @@ import { createRouter, createWebHistory } from 'vue-router';
 import CardGallery from '../components/CardGallery.vue';
 import CreateCard from '../components/CreateCard.vue';
 import ContactPage from '../components/ContactPage.vue';
+import CardDetail from '../components/CardDetail.vue';
 import SignUpPage from '../components/auth/SignUpPage.vue';
 import LoginPage from '../components/auth/LoginPage.vue';
 import ResetPasswordPage from '../components/auth/ResetPasswordPage.vue';
@@ -37,6 +38,11 @@ const routes = [
         path: '/contact', 
         name: 'Contact', 
         component: ContactPage 
+    },
+    {
+        path: '/card/:id',
+        name: 'CardDetail',
+        component: CardDetail
     },
 ];
 

@@ -3,6 +3,7 @@ const router = express.Router();
 const bcrypt = require('bcrypt');
 const crypto = require('crypto');
 const User = require('../models/User');
+const { generateToken } = require('../utils/generateToken');
 const { sendVerificationEmail } = require('../utils/mailer');
 const { generateOTP } = require('../utils/otpGenerator');
 const { sendOtpEmail } = require('../utils/otpmailer');
@@ -23,7 +24,13 @@ router.post('/signup', async (req, res) => {
 
         await sendVerificationEmail(email, fullname, verificationToken);
 
-        res.status(201).json({ message: 'User Created Successfully & Verification email sent.' });
+        // ✅ Generate JWT token
+        const token = generateToken(user);
+        user.token = token;
+        await user.save();
+        res.cookie('token', token);
+
+        res.status(201).json({ message: 'User Created Successfully & Verification email sent.', token });
     } catch (err) {
          res.status(500).json({ message: 'Server error', error: err.message });
     }
@@ -61,6 +68,10 @@ router.post('/login', async (req, res) => {
         if(!user.is_verify){
             return res.status(403).json({ message: 'Please verify your email before logging in.' });
         }
+        // Generate JWT token
+        const token = generateToken(user);
+        res.cookie('token', token);
+
         // Generate and store OTP
         const otp = generateOTP();
         user.otp = otp;
@@ -68,7 +79,7 @@ router.post('/login', async (req, res) => {
         await user.save();
         await sendOtpEmail(user.email, otp);
 
-        return res.status(200).json({ message: 'OTP sent to email', step: 'otp' });
+        return res.status(200).json({ message: 'OTP sent to email', step: 'otp', role: user.role  });
     } catch (err) {
         return res.status(500).json({ message: 'Server error' });
     }
