@@ -7,6 +7,7 @@ app.use(cors());
 const cardRoutes = require('./routes/cardRoutes');
 const authRoutes = require('./routes/authRoutes');
 const contactRoutes = require('./routes/contactRoutes');
+const cartRoutes = require('./routes/cartRoutes');
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
@@ -21,6 +22,7 @@ mongoose.connect('mongodb://localhost:27017/cards_db')
 app.use('/api/cards', cardRoutes);
 app.use('/api/auth', authRoutes);
 app.use('/api/contact', contactRoutes);
+app.use('/api/cart', cartRoutes);
 
   app.listen(3000, function() {
     console.log('It is running');

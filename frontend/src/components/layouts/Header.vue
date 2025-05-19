@@ -7,11 +7,19 @@
                 <li><a href="/contact">Contact</a></li>
             </ul>
 
-            <div class="profile-dropdown" @click="toggleDropdown">
-                <img :src="profileImage" alt="Profile" class="profile-icon" />
-                <div v-if="showDropdown" class="dropdown-menu">
-                    <a href="#">Change Profile</a>
-                    <a href="#" @click.prevent="logout">Logout</a>
+            <div class="nav-actions">
+                <div class="cart-info">
+                    <i class="fas fa-shopping-cart"></i>
+                    <span>Cart</span>
+                    <span v-if="cartCount > 0" class="cart-badge">{{ cartCount }}</span>
+                </div>
+
+                <div class="profile-dropdown" @click="toggleDropdown">
+                    <img :src="profileImage" alt="Profile" class="profile-icon" />
+                    <div v-if="showDropdown" class="dropdown-menu">
+                        <a href="#">Change Profile</a>
+                        <a href="#" @click.prevent="logout">Logout</a>
+                    </div>
                 </div>
             </div>
         </nav>
@@ -26,15 +34,33 @@ export default {
         return {
             showDropdown: false,
             profileImage: profileImage,
-            userRole: localStorage.getItem('role') || 'user'
+            userRole: localStorage.getItem('role') || 'user',
+            cartCount: 0,
         };
+    },
+    props: {
+        cartCount: {
+            type: Number,
+            default: 0
+        }
     },
     computed: {
         isAdmin() {
-        return this.userRole === 'admin';
+            return this.userRole === 'admin';
         }
     },
     methods: {
+        async fetchCartCount() {
+            const userId = localStorage.getItem('userId');
+            if (!userId) return;
+            try {
+                const res = await fetch(`http://localhost:3000/api/cart/${userId}`);
+                const data = await res.json();
+                this.cartCount = data.reduce((sum, item) => sum + (item.quantity || 1), 0);
+            } catch (err) {
+                console.error("Fetch cart count failed:", err);
+            }
+        },
         toggleDropdown() {
             this.showDropdown = !this.showDropdown;
         },
@@ -87,6 +113,12 @@ export default {
     transition: color 0.3s ease;
 }
 
+.nav-actions {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
 .profile-dropdown {
     position: relative;
     cursor: pointer;
@@ -120,5 +152,30 @@ export default {
 
 .dropdown-menu a:hover {
     background-color: #f0f0f0;
+}
+
+.cart-info {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: white;
+    font-size: 1rem;
+    font-weight: bold;
+    margin-right: 20px;
+    cursor: pointer;
+}
+
+.cart-info i {
+    font-size: 1.2rem;
+}
+
+.cart-badge {
+    background-color: red;
+    color: white;
+    font-size: 0.75rem;
+    border-radius: 50%;
+    padding: 2px 6px;
+    margin-left: 4px;
+    font-weight: bold;
 }
 </style>

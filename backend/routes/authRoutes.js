@@ -79,7 +79,14 @@ router.post('/login', async (req, res) => {
         await user.save();
         await sendOtpEmail(user.email, otp);
 
-        return res.status(200).json({ message: 'OTP sent to email', step: 'otp', role: user.role  });
+        return res.status(200).json({ 
+            message: 'OTP sent to email', 
+            step: 'otp', 
+            user: {
+                _id: user._id,
+                role: user.role
+            }
+            });
     } catch (err) {
         return res.status(500).json({ message: 'Server error' });
     }

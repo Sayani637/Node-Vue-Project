@@ -84,6 +84,7 @@ export default {
 
                 const result = await response.json();
                 if (response.ok && result.step === 'otp') {
+                    localStorage.setItem('userId', result.user._id);
                     localStorage.setItem('role', result.role);
                     Toastify({
                         text: 'OTP sent to email.',
