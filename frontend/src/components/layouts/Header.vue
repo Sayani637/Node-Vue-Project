@@ -8,10 +8,12 @@
             </ul>
 
             <div class="nav-actions">
-                <div class="cart-info">
-                    <i class="fas fa-shopping-cart"></i>
-                    <span>Cart</span>
-                    <span v-if="cartCount > 0" class="cart-badge">{{ cartCount }}</span>
+                <div class="cart-info" @click="$router.push('/cart')">
+                    <div class="cart-icon-wrapper">
+                        <i class="fas fa-shopping-cart"></i>
+                        <span v-if="cartCount > 0" class="cart-badge">{{ cartCount }}</span>
+                    </div>
+                    <span class="cart-label">Cart</span>
                 </div>
 
                 <div class="profile-dropdown" @click="toggleDropdown">
@@ -27,6 +29,7 @@
 </template>
 <script>
 import profileImage from '../../assets/images/profileImage.png';
+import { mapGetters } from 'vuex';
 
 export default {
     name: "Header",
@@ -35,32 +38,15 @@ export default {
             showDropdown: false,
             profileImage: profileImage,
             userRole: localStorage.getItem('role') || 'user',
-            cartCount: 0,
         };
     },
-    props: {
-        cartCount: {
-            type: Number,
-            default: 0
-        }
-    },
     computed: {
+        ...mapGetters(['cartCount']),
         isAdmin() {
             return this.userRole === 'admin';
         }
     },
     methods: {
-        async fetchCartCount() {
-            const userId = localStorage.getItem('userId');
-            if (!userId) return;
-            try {
-                const res = await fetch(`http://localhost:3000/api/cart/${userId}`);
-                const data = await res.json();
-                this.cartCount = data.reduce((sum, item) => sum + (item.quantity || 1), 0);
-            } catch (err) {
-                console.error("Fetch cart count failed:", err);
-            }
-        },
         toggleDropdown() {
             this.showDropdown = !this.showDropdown;
         },
@@ -157,25 +143,34 @@ export default {
 .cart-info {
     display: flex;
     align-items: center;
-    gap: 8px;
-    color: white;
-    font-size: 1rem;
-    font-weight: bold;
-    margin-right: 20px;
+    gap: 6px;
+    /* space between icon and label */
+    position: relative;
     cursor: pointer;
+    color: white;
 }
 
-.cart-info i {
-    font-size: 1.2rem;
+.cart-icon-wrapper {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
 .cart-badge {
+    position: absolute;
+    top: -11px;
+    right: -8px;
     background-color: red;
     color: white;
-    font-size: 0.75rem;
-    border-radius: 50%;
     padding: 2px 6px;
-    margin-left: 4px;
-    font-weight: bold;
+    font-size: 12px;
+    border-radius: 50%;
+    line-height: 1;
+}
+
+.cart-label {
+    font-size: 16px;
+    color: white;
 }
 </style>

@@ -96,7 +96,7 @@ export default {
                         },
                         close: true,
                     }).showToast();
-
+                    await this.$store.dispatch('fetchCartCount');
                     this.emailForOtp = this.loginEmail;
                     this.showOtpInput = true;
                 } else {

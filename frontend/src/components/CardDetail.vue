@@ -41,7 +41,6 @@ export default {
         },
         async addToCart() {
             const userId = localStorage.getItem('userId');
-            console.log("User ID:", userId); 
 
             if (!userId) {
                 alert('Please login first');
@@ -55,7 +54,7 @@ export default {
                     body: JSON.stringify({ userId, cardId: this.card._id })
                 });
                 const data = await res.json();
-                this.$emit('cart-updated', data.cartCount); // fixed: use data.cartCount instead of data.cart.length
+                await this.$store.dispatch('fetchCartCount');
             } catch (err) {
                 console.error("Add to cart failed:", err);
             }

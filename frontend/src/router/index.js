@@ -7,6 +7,7 @@ import CardDetail from '../components/CardDetail.vue';
 import SignUpPage from '../components/auth/SignUpPage.vue';
 import LoginPage from '../components/auth/LoginPage.vue';
 import ResetPasswordPage from '../components/auth/ResetPasswordPage.vue';
+import CartPage from '../components/CartPage.vue';
 
 const routes = [
     { 
@@ -43,6 +44,11 @@ const routes = [
         path: '/card/:id',
         name: 'CardDetail',
         component: CardDetail
+    },
+    {
+        path: '/cart',
+        name: 'CartPage',
+        component: CartPage
     },
 ];
 
