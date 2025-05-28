@@ -25,7 +25,6 @@ export default createStore({
                 commit('setCartCount', 0);
                 return;
             }
-
             const cart = await res.json();
 
             // Check if cart.items exists and is an array
