@@ -47,6 +47,12 @@
             <strong>₹{{ totalPrice }}</strong>
           </div>
         </div>
+        <!-- Place Order Button -->
+        <div class="place-order-wrapper">
+          <button class="place-order-button" @click="handlePlaceOrder">
+            PLACE ORDER
+          </button>
+        </div>
       </div>
     </div>
   </div>
@@ -68,21 +74,30 @@ export default {
       return this.cartItems.reduce((sum, item) => sum + (item.cardId.price * item.quantity), 0);
     },
     totalPrice() {
-      return this.totalOriginalPrice; // Update if any discount logic exists
+      return this.totalOriginalPrice;
     },
   },
   async created() {
-    try {
-      const response = await axios.get(`http://localhost:3000/api/cart/${this.userId}`);
-      this.cartItems = response.data.items.map(item => ({
-        ...item,
-        quantity: item.quantity || 1
-      }));
-    } catch (error) {
-      console.error("Failed to load cart:", error);
+    await this.loadCartItems();
+  },
+  watch: {
+    '$route'(to, from) {
+      this.loadCartItems(); 
     }
   },
   methods: {
+    async loadCartItems() {
+      try {
+        const response = await axios.get(`http://localhost:3000/api/cart/${this.userId}`);
+        this.cartItems = response.data.items.map(item => ({
+          ...item,
+          quantity: item.quantity || 1
+        }));
+      } catch (error) {
+        console.error("Failed to load cart:", error);
+        this.cartItems = [];
+      }
+    },
     increaseQuantity(item) {
       item.quantity++;
       this.updateCart(item);
@@ -115,7 +130,18 @@ export default {
         .catch(error => {
           console.error("Failed to remove item:", error);
         });
-    }
+    },
+    async handlePlaceOrder() {
+      try {
+        const response = await axios.post('http://localhost:3000/api/paypal/create-payment', {
+          items: this.cartItems
+        });
+        // Redirect to PayPal checkout
+        window.location.href = response.data.approvalUrl;
+      } catch (error) {
+        console.error("Error placing order:", error);
+      }
+    },
   }
 };
 </script>
@@ -294,5 +320,28 @@ hr {
   cursor: pointer;
   font-weight: bold;
   margin-top: 10px;
+}
+
+.place-order-wrapper {
+  margin-top: 20px;
+  display: flex;
+  justify-content: center;
+}
+
+.place-order-button {
+  background-color: #fb641b;
+  color: white;
+  border: none;
+  width: 100%;
+  padding: 12px;
+  font-size: 16px;
+  font-weight: 600;
+  border-radius: 2px;
+  cursor: pointer;
+  transition: background 0.3s ease;
+}
+
+.place-order-button:hover {
+  background-color: #d65b1c;
 }
 </style>

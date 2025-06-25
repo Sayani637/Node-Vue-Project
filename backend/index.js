@@ -1,3 +1,4 @@
+require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
 const mongoose = require('mongoose');
@@ -8,6 +9,7 @@ const cardRoutes = require('./routes/cardRoutes');
 const authRoutes = require('./routes/authRoutes');
 const contactRoutes = require('./routes/contactRoutes');
 const cartRoutes = require('./routes/cartRoutes');
+const paypalRoutes = require('./routes/paypalRoutes');
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
@@ -23,6 +25,7 @@ app.use('/api/cards', cardRoutes);
 app.use('/api/auth', authRoutes);
 app.use('/api/contact', contactRoutes);
 app.use('/api/cart', cartRoutes);
+app.use('/api/paypal', paypalRoutes);
 
   app.listen(3000, function() {
     console.log('It is running');

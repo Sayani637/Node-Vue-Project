@@ -11,7 +11,7 @@
                 <div class="button-row">
                     <button class="add-to-cart" @click="addToCart"><i class="fas fa-shopping-cart"></i> Add to
                         Cart</button>
-                    <button class="buy-now"><i class="fas fa-bolt"></i> Buy Now</button>
+                    <button class="buy-now" @click="buyNow"><i class="fas fa-bolt"></i> Buy Now</button>
                 </div>
             </div>
         </div>
@@ -57,6 +57,31 @@ export default {
                 await this.$store.dispatch('fetchCartCount');
             } catch (err) {
                 console.error("Add to cart failed:", err);
+            }
+        },
+        async buyNow() {
+            const userId = localStorage.getItem('userId');
+
+            if (!userId) {
+                alert('Please login first');
+                return;
+            }
+
+            try {
+                const res = await fetch('http://localhost:3000/api/paypal/buy-now', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ item: this.card })
+                });
+
+                const data = await res.json();
+                if (data.approvalUrl) {
+                    window.location.href = data.approvalUrl;
+                } else {
+                    alert("Something went wrong with PayPal checkout.");
+                }
+            } catch (err) {
+                console.error("Buy Now failed:", err);
             }
         },
     }

@@ -8,6 +8,8 @@ import SignUpPage from '../components/auth/SignUpPage.vue';
 import LoginPage from '../components/auth/LoginPage.vue';
 import ResetPasswordPage from '../components/auth/ResetPasswordPage.vue';
 import CartPage from '../components/CartPage.vue';
+import PaymentSuccess from '../components/PaymentSuccess.vue';
+import PaymentCancel from '../components/PaymentCancel.vue';
 
 const routes = [
     { 
@@ -49,6 +51,16 @@ const routes = [
         path: '/cart',
         name: 'CartPage',
         component: CartPage
+    },
+    { 
+        path: '/payment-success', 
+        name: 'PaymentSuccess',
+        component: PaymentSuccess 
+    },
+    { 
+        path: '/payment-cancel',
+        name: 'PaymentCancel', 
+        component: PaymentCancel 
     },
 ];
 
